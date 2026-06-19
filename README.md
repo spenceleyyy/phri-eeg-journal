@@ -1,6 +1,8 @@
 # phri-eeg-journal
 This is the EEG pipeline for the phri journal publication :)
 
+# Trigger Pipeline
+-----------------------------------------------------------------------------------------------------------------------------------------------
 ## Componenets
 1. **EEG Data** - Lives inside the xdf files - extract as .set -> eeglab
    
@@ -32,5 +34,5 @@ This is the EEG pipeline for the phri journal publication :)
 4. **Pair trials windows** - allign first trigger as a "start" trigger and the following as a "stop" trigger so you have windows for the code to search for ERP triggers within.
 
 5. **Find and append ERP events to a master trigger set** - based on the above coordinates, search for the ERP triggers in the robot data. **Ensure that you account for the table offset, found in the pHRI logs**
-   
-### 
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
