@@ -19,7 +19,7 @@ This is the EEG pipeline for the phri journal publication :)
 
     - _Note that past 3 decimal points, the coords become unreliable_
 
-## Trigger Pipeline - INSERT .FILENAME HERE
+## Trigger Pipeline - full_ERP_pipeline.py
 1. **Convert to common time** The data streams in the research drive (i.e. robotlogs csvs) have the timestamp saved as unix time, making conversions difficult. Instead, extract the data you need from the xdf file, using the xdf timestamp to syncrhonize with corrected triggers.
 
 2. **Put robot data into a dataframe** - gives you data strucutred as:
