@@ -43,9 +43,9 @@ This is the EEG pipeline for the phri journal publication :)
 
 1. **XDF to .set** - Unfortunately, the software we use to process eeg data (EEGLAB) does not natively accept xdf files, so you will need to convert to a usable file format, using the xdf_to_eeglab_sets.m file.
    - _Required packages_:
-     - [EEGLAB](https://eeglab.org/?utm_source=chatgpt.com)
+     - [EEGLAB](https://eeglab.org/.com)
      - [ERPLAB](https://erpinfo.org/erplab)
-     - [load_xdf.m](https://github.com/xdf-modules/xdf-Matlab?utm_source=chatgpt.com)
+     - [load_xdf.m](https://github.com/xdf-modules/xdf-Matlab?utm.com)
        
    - Once downloaded, place these file in you MATLAB file
      - Then, in MATLAB, add them to your path:
@@ -60,7 +60,7 @@ This is the EEG pipeline for the phri journal publication :)
        ```
 
 ## Next, add the new triggers to the XDF file
-_If you do not need 
+_If you do not need add new triggers, skip this step. This is necessary when you are (1) adding ERP triggers (like in the present work) or (2) if you have corrected triggers you are using._
 
 1. Use ____ to add the triggers to the xdf files.
 
