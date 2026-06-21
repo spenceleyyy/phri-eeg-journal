@@ -8,54 +8,54 @@ import traceback
 # USER SETTINGS
 # -----------------------
 
-XDF_FOLDER = Path("/Users/hotcocks/Desktop/pHRIEEGJ")
-TRIGGER_FOLDER = Path("/Users/hotcocks/Desktop/pHRIEEGJ/corrected_triggers")
+XDF_FOLDER = Path("/path/to")
+TRIGGER_FOLDER = Path("/path/to")
 OUTPUT_ROOT = Path("Batch_Output")
 
 PARTICIPANTS = {
-    "PHRIE01": 107,
-    "PHRIE02": 115,
-    "PHRIE03": 118,
-    "PHRIE04": 118,
-    #"PHRIE05": 
-    "PHRIE06": 118,
-    "PHRIE07": 111.4,
-    "PHRIE08": 103,
-    "PHRIE09": 112.5,
-    "PHRIE10": 117.2,
-    #"PHRIE11": 
-    "PHRIE12": 105.3,
-    #"PHRIE13": 100.8,
-    #"PHRIE13_2": 100.8,
-    "PHRIE14": 110,
-    "PHRIE15": 111,
-    "PHRIE16": 106.1,
-    "PHRIE17": 118.2,
-    #"PHRIE18": 110.9,
-    #"PHRIE18_2": 110.9,
-    "PHRIE19": 102,
-    "PHRIE20": 115.6,
-    "PHRIE21": 101.4,
-    "PHRIE22": 112.7,
-    "PHRIE23": 103.4,
-    "PHRIE24": 106,
-    "PHRIE25": 116.5,
-    "PHRIE26": 116,
-    "PHRIE27": 104,
-    "PHRIE28": 116.5,
-    "PHRIE29": 106.2,
-    "PHRIE30": 116.2,
-    "PHRIE32": 113.0,
-    "PHRIE33": 118.1,
-    "PHRIE34": 109,
-    "PHRIE35": 113,
-    "PHRIE36": 105,
-    #"PHRIE37": 111.1,
-    #"PHRIE37_2": 111.1,
-    "PHRIE38": 117.6,
-    "PHRIE39": 113.1,
-    "PHRIE40": 109.5,
-    "PHRIE41": 111.5,
+    ##"PHRIE01": 107,
+    ##"PHRIE02": 115,
+    ##"PHRIE03": 118,
+    ##"PHRIE04": 118,
+    ##"PHRIE05": 
+    #"PHRIE06": 118,
+    #"PHRIE07": 111.4,
+    #"PHRIE08": 103,
+    #"PHRIE09": 112.5,
+    #"PHRIE10": 117.2,
+    ##"PHRIE11": 
+    #"PHRIE12": 105.3,
+    "PHRIE13": 100.8,
+    "PHRIE13_2": 100.8,
+    #"PHRIE14": 110,
+    #"PHRIE15": 111,
+    #"PHRIE16": 106.1,
+    #"PHRIE17": 118.2,
+    "PHRIE18": 110.9,
+    "PHRIE18_2": 110.9,
+    #"PHRIE19": 102,
+    #"PHRIE20": 115.6,
+    #"PHRIE21": 101.4,
+    #"PHRIE22": 112.7,
+    #"PHRIE23": 103.4,
+    #"PHRIE24": 106,
+    #"PHRIE25": 116.5,
+    #"PHRIE26": 116,
+    #"PHRIE27": 104,
+    #"PHRIE28": 116.5,
+    #"PHRIE29": 106.2,
+    #"PHRIE30": 116.2,
+    #"PHRIE32": 113.0,
+    #"PHRIE33": 118.1,
+    #"PHRIE34": 109,
+    #"PHRIE35": 113,
+    #"PHRIE36": 105,
+    "PHRIE37": 111.1,
+    "PHRIE37_2": 111.1,
+    #"PHRIE38": 117.6,
+    #"PHRIE39": 113.1,
+    #"PHRIE40": 109.5,
+    #"PHRIE41": 111.5,
 }
 
 DEBUG_FIRST_TRIAL = False
@@ -124,6 +124,7 @@ def find_robot_stream(streams):
     raise ValueError("Could not find UR10robot / RobotPositions stream.")
 
 
+
 def find_trigger_stream(streams):
     # Main corrected triggers appear to be in the stream named Trigger, not the empty actiCHampMarkers stream.
     for i, s in enumerate(streams):
@@ -138,6 +139,23 @@ def find_trigger_stream(streams):
             return i, s
 
     raise ValueError("Could not find a non-empty Trigger/Markers stream.")
+
+
+# EEG stream selection
+def find_eeg_stream(streams):
+    # Prefer actiCHamp EEG streams.
+    for i, s in enumerate(streams):
+        name, stype, source_id = stream_id(s)
+        if "actiCHamp" in name and stype == "EEG" and len(s["time_stamps"]) > 0:
+            return i, s
+
+    # Fallback: first non-empty EEG stream.
+    for i, s in enumerate(streams):
+        name, stype, source_id = stream_id(s)
+        if stype == "EEG" and len(s["time_stamps"]) > 0:
+            return i, s
+
+    raise ValueError("Could not find a non-empty EEG stream.")
 
 
 
@@ -180,6 +198,7 @@ def process_participant(participant_id, participant_table_height_cm):
 
     robot_idx, robot_stream = find_robot_stream(streams)
     trigger_idx, trigger_stream = find_trigger_stream(streams)
+    eeg_idx, eeg_stream = find_eeg_stream(streams)
 
     print(
         f"\nUsing robot stream: index {robot_idx}, "
@@ -189,6 +208,22 @@ def process_participant(participant_id, participant_table_height_cm):
         f"Using trigger stream: index {trigger_idx}, "
         f"name={stream_id(trigger_stream)[0]}, type={stream_id(trigger_stream)[1]}"
     )
+    print(
+        f"Using EEG stream: index {eeg_idx}, "
+        f"name={stream_id(eeg_stream)[0]}, type={stream_id(eeg_stream)[1]}"
+    )
+
+    eeg_ts = np.asarray(eeg_stream["time_stamps"], dtype=float)
+    eeg_start_xdf_time = float(eeg_ts[0])
+
+    try:
+        eeg_srate = float(eeg_stream["info"]["nominal_srate"][0])
+    except Exception:
+        eeg_srate = 1.0 / float(np.median(np.diff(eeg_ts)))
+
+    print("\nEEGLAB timing reference:")
+    print(f"EEG start XDF time: {eeg_start_xdf_time}")
+    print(f"EEG sampling rate: {eeg_srate}")
 
     # -----------------------
     # LOAD CORRECTED TRIGGER CSV
@@ -225,6 +260,10 @@ def process_participant(participant_id, participant_table_height_cm):
     corrected_events["raw_xdf_time"] = corrected_events["xdf_time"]
     corrected_events["unix_time"] = np.nan
     corrected_events["distance_m"] = np.nan
+    corrected_events["seconds_from_eeg_start"] = corrected_events["xdf_time"] - eeg_start_xdf_time
+    corrected_events["eeglab_latency"] = np.round(
+        corrected_events["seconds_from_eeg_start"] * eeg_srate
+    ).astype(int) + 1
 
     # Build robot trial windows from matching trigger pairs.
     ROBOT_LABELS = {"6", "7", "11", "12", "6.0", "7.0", "11.0", "12.0"}
@@ -462,6 +501,8 @@ def process_participant(participant_id, participant_table_height_cm):
                 "status": status,
                 "closest_distance_m": best_distance,
                 "xdf_time": float(pos.iloc[best_idx]["xdf_time"]),
+                "seconds_from_eeg_start": float(pos.iloc[best_idx]["xdf_time"]) - eeg_start_xdf_time,
+                "eeglab_latency": int(round((float(pos.iloc[best_idx]["xdf_time"]) - eeg_start_xdf_time) * eeg_srate)) + 1,
                 "unix_time": float(pos.iloc[best_idx]["Timestamp"]),
                 "target_x": float(target_xyz[0]),
                 "target_y": float(target_xyz[1]),
@@ -484,6 +525,8 @@ def process_participant(participant_id, participant_table_height_cm):
             robot_events.append({
                 "xdf_time": float(pos.iloc[best_idx]["xdf_time"]),
                 "raw_xdf_time": float(pos.iloc[best_idx]["raw_robot_xdf_time"]),
+                "seconds_from_eeg_start": float(pos.iloc[best_idx]["xdf_time"]) - eeg_start_xdf_time,
+                "eeglab_latency": int(round((float(pos.iloc[best_idx]["xdf_time"]) - eeg_start_xdf_time) * eeg_srate)) + 1,
                 "event_label": output_event_label,
                 "source": "robot_position",
                 "unix_time": float(pos.iloc[best_idx]["Timestamp"]),
@@ -507,7 +550,8 @@ def process_participant(participant_id, participant_table_height_cm):
     if robot_events.empty:
         print("\nWARNING: No robot ERP events found.")
         robot_events = pd.DataFrame(columns=[
-            "xdf_time", "raw_xdf_time", "event_label", "source", "unix_time", "distance_m",
+            "xdf_time", "raw_xdf_time", "seconds_from_eeg_start", "eeglab_latency",
+            "event_label", "source", "unix_time", "distance_m",
             "sequence", "erp_target_label", "parent_window_label"
         ])
     else:
@@ -535,7 +579,8 @@ def process_participant(participant_id, participant_table_height_cm):
     corrected_events["parent_window_label"] = np.nan
 
     combined_cols = [
-        "xdf_time", "raw_xdf_time", "event_label", "source", "unix_time", "distance_m",
+        "xdf_time", "raw_xdf_time", "seconds_from_eeg_start", "eeglab_latency",
+        "event_label", "source", "unix_time", "distance_m",
         "sequence", "erp_target_label", "parent_window_label"
     ]
 
@@ -548,6 +593,11 @@ def process_participant(participant_id, participant_table_height_cm):
     )
 
     combined = combined.sort_values("xdf_time").reset_index(drop=True)
+    combined = combined[
+        (combined["eeglab_latency"].notna()) &
+        (combined["eeglab_latency"] >= 1) &
+        (combined["eeglab_latency"] <= len(eeg_ts))
+    ].reset_index(drop=True)
     combined.to_csv(str(output_csv), index=False)
 
     print(f"\nSaved combined event file: {output_csv}")
