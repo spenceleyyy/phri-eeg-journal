@@ -25,7 +25,7 @@ function xdf_to_eeglab_sets(networkRoot, outRoot)
     end
 
     % ---- Find files
-    files = dir(fullfile(networkRoot, 'E*.xdf'));
+    files = dir(fullfile(networkRoot, '*.xdf'));
     if isempty(files)
         fprintf('No E*.xdf files in %s\n', networkRoot);
         return;
