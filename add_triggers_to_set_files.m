@@ -1,7 +1,7 @@
 function add_triggers_to_set_files()
 
-setRoot  = '/Users/hotcocks/Desktop/pHRIEEGJ/Corrected Data/Batch_Output';
-trigRoot = '/Users/hotcocks/Desktop/pHRIEEGJ/Corrected Data/Batch_Output';
+setRoot  = '/path';
+trigRoot = '/path';
 
 mustHave = {'pop_loadset','pop_saveset','eeg_checkset'};
 for i = 1:numel(mustHave)
