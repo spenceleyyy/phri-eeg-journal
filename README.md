@@ -35,6 +35,7 @@ This is the EEG pipeline for the phri journal publication :)
 4. **Pair trials windows** - allign first trigger as a "start" trigger and the following as a "stop" trigger so you have windows for the code to search for ERP triggers within. **This is NOT an essential componenet, but serves as a quality check of sorts.**
 
 5. **Find and append ERP events to a master trigger set** - based on the above coordinates, search for the ERP triggers in the robot data. **Ensure that you account for the table offset, found in the pHRI logs**
+   - While doing this, you must also add times that are readable by EEGLAB. In EEGLAB, time is stored in seconds relative to the start. 
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
 
@@ -52,13 +53,14 @@ This is the EEG pipeline for the phri journal publication :)
        ```
        addpath('path/to/EEGLAB')
        ```
-     - And save the path (so you don't need to do this step every time
+     - And save the path (so you don't need to do this step every time)
        
        ```
        savepath;
        ```
 
 ## Next, add the new triggers to the XDF file
+_If you do not need 
 
 1. Use ____ to add the triggers to the xdf files.
 
