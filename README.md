@@ -36,3 +36,8 @@ This is the EEG pipeline for the phri journal publication :)
 5. **Find and append ERP events to a master trigger set** - based on the above coordinates, search for the ERP triggers in the robot data. **Ensure that you account for the table offset, found in the pHRI logs**
 
 -----------------------------------------------------------------------------------------------------------------------------------------------
+
+## Next, add the new triggers to the XDF file
+
+1. Use ____ to add the triggers to the xdf files.
+
