@@ -20,7 +20,7 @@ This is the EEG pipeline for the phri journal publication :)
 
     - _Note that past 3 decimal points, the coords become unreliable_
 
-## Trigger Generation Pipeline - full_ERP_pipeline.py
+## Trigger Generation Pipeline - [full_ERP_pipeline.py](full_ERP_pipeline.py)
 1. **Convert to common time** The data streams in the research drive (i.e. robotlogs csvs) have the timestamp saved as unix time, making conversions difficult. Instead, extract the data you need from the xdf file, using the xdf timestamp to syncrhonize with corrected triggers.
 
 2. **Put robot data into a dataframe** - gives you data strucutred as:
@@ -62,15 +62,20 @@ This is the EEG pipeline for the phri journal publication :)
        ```
 2. **XDF to .set** - Unfortunately, the software we use to process eeg data (EEGLAB) does not natively accept xdf files, so you will need to convert to a usable file format, using the xdf_to_eeglab_sets.m file.
    
-   - To automatically extract, run xdf_to_eeglab_sets.m
+   - To automatically extract, run [xdf_to_eeglab_sets.m](xdf_to_eeglab_sets.m)
      ```
      xdf_to_eeglab_sets.m
      ```
-   - 
+   - When you run this script, the first file exploring pop up needs you to select where the xdf files are. The second pop up allows you to select where the files will output.
 
 
 ## Next, add the new triggers to the XDF file
 _If you do not need add new triggers, skip this step. This is necessary when you are (1) adding ERP triggers (like in the present work) or (2) if you have corrected triggers you are using._
 
-1. Use ____ to add the triggers to the xdf files.
-
+1. Use [add_triggers_to_set_files.m](add_triggers_to_set_files.m) to add the triggers to the xdf files.
+   ```
+   add_triggers_to_set_files.m
+   ```
+   - This scipt (1) removes the exsisting triggers from a .set file and (2) uploads the new triggers from your csv.
+  
+**Congratulations, you are ready to preprocess your data!** 
